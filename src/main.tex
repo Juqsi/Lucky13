@@ -1,0 +1,55 @@
+%! Author = Justus Benedict Siegert
+%! Date = 22.01.2023
+
+% Preamble
+\documentclass[a4paper,11pt]{scrartcl}
+
+\bibliographystyle{plain}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage[T1]{fontenc}
+
+
+% Document
+\begin{document}
+    \title{Lucky Thirteen}
+    \author{Justus Benedict Siegert}
+    \date{8445024, s222312@student.dhbw-mannheim.de}
+    \maketitle
+    \tableofcontents
+
+
+    \section{Einführung}\label{sec:einfuhrung}
+    Lucky 13 ist eine Zeitattacke gegen das Transport Layer Security (TLS) und dem Datagram Transport Layer (DTLS),
+    die 2013 von den Wissenschaftlern Nadhem J. AlFardan and Kenneth G. Paterson entdeckt wurde.
+    Sie arbeiten bei der Royal Holloway University of London
+
+
+    \section{(D)TLS}\label{sec:(d)tls}
+
+
+    \section{Voraussetzungen für einen Angriff}\label{sec:voraussetzungen-fur-einen-angriff}
+    Der Angriff wurde nur getestet, bei dem der Angreifer sich im selben Netzwerk befunden hat wie der Server\cite[S. 11]{AlFardan2013}
+
+
+    \section{Angriffsverlauf}\label{sec:angriffsverlauf}
+
+
+    \section{Sicherheitsbewertung}\label{sec:sicherheitsbewertung}
+
+
+    \section{Gegenmaßnahmen}\label{sec:gegenmanahmen}
+    Es gibt Grundsätzlich 3 Maßnahmen die ergriffen werden können um eine solche Angriffswahrscheinlichkeit zu minimieren
+
+    \subsection{Zufällige Zeitverzögerungen}
+
+    \subsection{RC4-Chiffre}
+
+    \subsection{Implementierung der MEE-TLS-CBC-Entschlüsselung}
+    \newpage
+
+    \bibliography{Literatur/Quellen}
+\end{document}
+
