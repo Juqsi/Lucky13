@@ -19,18 +19,48 @@
     \date{8445024, s222312@student.dhbw-mannheim.de}
     \maketitle
     \tableofcontents
+    \newpage
 
 
     \section{Einführung}\label{sec:einfuhrung}
-    Lucky 13 ist eine Zeitattacke gegen das Transport Layer Security (TLS) und dem Datagram Transport Layer (DTLS),
-    die 2013 von den Wissenschaftlern Nadhem J. AlFardan and Kenneth G. Paterson entdeckt wurde.
-    Sie arbeiten bei der Royal Holloway University of London
+    Das Verschlüsseln von Daten ist seit der Nutzung des Internets ein wichtiges Anliegen der Nutzenden.
+    Das am häufigsten genutzte Protokoll ist das Transport Layer Security Protokoll (TLS).
+    Lucky 13 ist eine kryptografische Schwachstelle des TLS-Protokolls in der Version 1.1, sowie dem Vorgänger TLS 1.0, SSL, die Maßnahmen gegen padding oracle attacks enthalten und dem Datagram Transport Layer Security (DTLS)~\cite[S.2]{AlFardan2013},
+    bei dem die Daten kompromittiert werden.
+    Durch die Schwachstelle können Angreifer Daten ausspionieren, die verschlüsselt wäre und vermeintlich sicher sind.
+    Die Sicherheitslücke wurde 2013 von den Wissenschaftlern Nadhem J. AlFardan and Kenneth G. Paterson, der Security Group der Royal Holloway University of London entdeckt.
+    \newline
+    Der Lucky 13 Angriff ist eine Art von Man in the Middle attack verbunden mit einer padding oracle attack.
+    Dabei ist das Problem, dass das Padding nach der Berechnung des message authentication code (MAC) hinzugefügt wird und somit unauthentifizierte Daten im verschlüsselten Klartext bildet.
+
+    \subsection{Man in the middle attack}\label{subsec:man-in-the-middle-attack}
+    Eine man in the middle Attacke ist ein Angriff, bei dem eine dritte Partei eine vermeintlich direkte Verbindung von zwei anderen zwischen schaltet.
+
+    \subsection{padding oracle attack}\label{subsec:padding-oracle-attack}
+    Bei einem Padding oracle attack wird ausgenutzt, dass chiffren für eine Blockverschlüsslung mit einem Padding aufgefüllt werden.
+    Damit der Angriff aber auch gelingt muss der Server eine Antwort geben, ob das hinzugefügt Padding korrekt oder nicht ist.
+    Durch die Antworten des Servers, welche genutzt werden können, um die Verschlüsslung zu knacken, kommt der name Orakel
 
 
-    \section{(D)TLS}\label{sec:(d)tls}
+    \section{(Datagram) Transport Layer Security}\label{sec:(d)tls}
+    Der vorgänger von TLS, Secure Socket Layer (SSL) 1.0 erschien im Jahr 1994, neun Monate nach der ersten Mosaic version.
+    In den folgenden zwei Jahre wurden zwei weiter Versionen entwickelt und dann SSL in TLS 1.0 umbenannt.
+    \newline
+    TLS besteht aus zwei Hauptkomponenten: dem TLS Handshake, der für den sicheren Schlüsselaustausch zwischen dem Client und dem Server zuständig ist,
+    und dem TLS Record, dieser verwendet die beim Handshake ausgehandelten Schlüssel, um eine sichere Datenübertragung zu ermöglichen.
+    Die Daten werden verschlüsselt und mit einem MAC gegen manipulation geschützt.
+    Die grundlegende Funktionsweise besteht darin, dass der Client eine Verbindung mit dem Server aufbaut, welcher sich mit einem Zertifikat authentifiziert.
+    Der Client überprüft die Vertrauenswürdigkeit und vergleicht die Daten des Zertifikats, mit den des Servers.
+    \newline DTLS basiert auf TLS, kann aber im Gegensatz zu TLS auch Transportprotokolle wie UDP übertragen, hat aber grundlegend dieselben Eigenschaften und Sicherheitsmerkmale
+
+    \subsection{CBC-Mode}\label{subsec:cbc-mode}
+    CBC steht für Cipher Block Chaining Mode, ist eine Betriebsart in der Blockchiffre, dabei wird vor dem Verschlüsseln des Klartextblocks dieser mit dem vorausgehenden verschlüsselten Block per XOR verknüpft.
+    Die Vorteiler dieses Modus sind, dass gleich Klartextblöcke unterschiedliche verschlüsselte Blöcke ergibt.
 
 
     \section{Voraussetzungen für einen Angriff}\label{sec:voraussetzungen-fur-einen-angriff}
+    Damit der Angriff gelingt, muss die TLS version 1.1 oder eine ältere version mit Maßnahmen gegen padding oracle attacks.
+    Bei anderen älteren Versionen gelingen sonst andere Angriffe.
     Der Angriff wurde nur getestet, bei dem der Angreifer sich im selben Netzwerk befunden hat wie der Server\cite[S. 11]{AlFardan2013}
 
 
@@ -41,7 +71,7 @@
 
 
     \section{Gegenmaßnahmen}\label{sec:gegenmanahmen}
-    Es gibt Grundsätzlich 3 Maßnahmen die ergriffen werden können um eine solche Angriffswahrscheinlichkeit zu minimieren
+    Es gibt mehrer Maßnahmen die ergriffen werden können um einen Angriffserfolg zu minimieren.
 
     \subsection{Zufällige Zeitverzögerungen}
 
