@@ -2,7 +2,7 @@
 %! Date = 22.01.2023
 
 % Preamble
-\documentclass[a4paper,11pt]{scrartcl}
+\documentclass[a4paper,10pt]{scrartcl}
 
 \bibliographystyle{plain}
 
@@ -10,6 +10,9 @@
 \usepackage[utf8]{inputenc}
 \usepackage[ngerman]{babel}
 \usepackage[T1]{fontenc}
+\usepackage[normalem]{ulem}
+\usepackage{wasysym}
+\useunder{\uline}{\ul}{}
 
 
 % Document
@@ -22,7 +25,7 @@
     \newpage
 
 
-    \section{Einführung}\label{sec:einfuhrung}
+    \section{Einleitung}\label{sec:einleitung}
     Das Verschlüsseln von Daten ist seit der Nutzung des Internets ein wichtiges Anliegen der Nutzenden.
     Das am häufigsten genutzte Protokoll ist das Transport Layer Security Protokoll (TLS).
     Lucky 13 ist eine kryptografische Schwachstelle des TLS-Protokolls in der Version 1.1, sowie dem Vorgänger TLS 1.0, SSL, die Maßnahmen gegen padding oracle attacks enthalten und dem Datagram Transport Layer Security (DTLS)~\cite[S.2]{AlFardan2013},
@@ -32,14 +35,18 @@
     \newline
     Der Lucky 13 Angriff ist eine Art von Man in the Middle attack verbunden mit einer padding oracle attack.
     Dabei ist das Problem, dass das Padding nach der Berechnung des message authentication code (MAC) hinzugefügt wird und somit unauthentifizierte Daten im verschlüsselten Klartext bildet.
+    Im Folgendem werden verschiedene Aspekte zum verständnis der Sicherheitslücke ausgeführt.
 
     \subsection{Man in the middle attack}\label{subsec:man-in-the-middle-attack}
     Eine man in the middle Attacke ist ein Angriff, bei dem eine dritte Partei eine vermeintlich direkte Verbindung von zwei anderen zwischen schaltet.
+    Bei einer Man-in-the-Middle-Attacke (MITM), wird unerlaubt auf den Datenverkehr zweier Kommunikationspartner zugegriffen, in dem der Angreifer versucht zwischen den Datenverkehr der beiden Kommunikationspartner zu gelangen und diesen abzufangen oder zu manipuliert.
+    Die Gefahr bei dieser Art von Angriff ist, dass es nicht im Rahmen einer normalen Datenübertragung zu erkenne ist.
 
     \subsection{padding oracle attack}\label{subsec:padding-oracle-attack}
-    Bei einem Padding oracle attack wird ausgenutzt, dass chiffren für eine Blockverschlüsslung mit einem Padding aufgefüllt werden.
-    Damit der Angriff aber auch gelingt muss der Server eine Antwort geben, ob das hinzugefügt Padding korrekt oder nicht ist.
-    Durch die Antworten des Servers, welche genutzt werden können, um die Verschlüsslung zu knacken, kommt der name Orakel
+    Bei einem Padding oracle attack wird ausgenutzt, dass einige Chiffren für ein Padding benötigen, um eine Blockverschlüsslung durchzuführen, damit die Nachricht auf Blocklänge ist.
+    Der Angreifer schickt dann nachrichten an den Server mit verschiedenen Paddings und schaut, ob der Server das Padding akzeptiert.
+    Bei einem korrektem Padding kann dann die Nachricht genutzt werden, um die Verschlüsslung der Datenpakete zu knacken.
+    Durch das Antworten des Servers kommt der name Orakel.
 
 
     \section{(Datagram) Transport Layer Security}\label{sec:(d)tls}
@@ -51,7 +58,8 @@
     Die Daten werden verschlüsselt und mit einem MAC gegen manipulation geschützt.
     Die grundlegende Funktionsweise besteht darin, dass der Client eine Verbindung mit dem Server aufbaut, welcher sich mit einem Zertifikat authentifiziert.
     Der Client überprüft die Vertrauenswürdigkeit und vergleicht die Daten des Zertifikats, mit den des Servers.
-    \newline DTLS basiert auf TLS, kann aber im Gegensatz zu TLS auch Transportprotokolle wie UDP übertragen, hat aber grundlegend dieselben Eigenschaften und Sicherheitsmerkmale
+    \newline
+    DTLS basiert auf TLS, kann aber im Gegensatz zu TLS auch Transportprotokolle wie UDP übertragen, hat aber grundlegend dieselben Eigenschaften und Sicherheitsmerkmale
 
     \subsection{CBC-Mode}\label{subsec:cbc-mode}
     CBC steht für Cipher Block Chaining Mode, ist eine Betriebsart in der Blockchiffre, dabei wird vor dem Verschlüsseln des Klartextblocks dieser mit dem vorausgehenden verschlüsselten Block per XOR verknüpft.
@@ -68,10 +76,33 @@
 
 
     \section{Sicherheitsbewertung}\label{sec:sicherheitsbewertung}
+    Die schwachstelle Lucky 13 wird allgemein mit einer geringen Sicherheitsbewertungsstufe angegeben.
+    Begründungen hierfür sind in erster Linie auch direkt die Erkennung des richtigen Paddings, welches wie bereits erwähnt über die Zeit der Antwort des Servers ermittelt wird.
+    Das ist allerdings äußerst unwahrscheinlich, wenn man sich nicht im selben Netzwerk, wie der Server befindet.
+    Nadhem J. AlFardan and Kenneth G. Paterson haben die Analysen für ihr Paper auch nur im selben Netzwerk gemacht.
+    Suse schreibt da zu ``Please note that an exploit for this requires physical proximity of an attacker to the server, which is usually unlikely``, was Übersetzt bedeutet: Bitte beachten Sie, dass ein Exploit für dieses Problem die physische Nähe eines Angreifers zum Server erfordert, was in der Regel unwahrscheinlich ist.
+    Die Bewertung von Schwachstellen findet anhand des Common Vulnerability Scoring System (CVSS v2) statt, dies ist der Industrie standard zur bewertung für mögliche und tatsächliche Sicherheitslücken.
+    Dort werden verschiedene Kategorie, die in~\ref{tab:CVSS-Vektor} zusehen sind bewertet und dann nach einem Schlüssel ein Wert zwischen 0 und 10 ermittelt.
+    Je geringer der Wert ist, desto kleiner ist das Risiko, bis 3.9 ist das Risiko gering, zwischen 4.0 und 6.9 ist das Risiko medium und ab 7.0 ist das Risiko hoch.
+    Deshalb wird von Suse der CVSS-Vector wie Folgt gesetzt:
+    \begin{table}[h]
+        \begin{tabular}{lllll}
+        {\ul \textbf{Exploitability Metrics}}
+            &         & & {\ul \textbf{Impact Metrics}}   & \multicolumn{1}{c}{} \\
+            \textbf{Access Vector}     & Network & & \textbf{Confidentiality Impact} & Partial              \\
+            \textbf{Access Complexity} & High    & & \textbf{Integrity Impact}       & None                 \\
+            \textbf{Authentication}    & None    & & \textbf{Availability Impact}    & None
+        \end{tabular}\caption{Bewertung von Lucky 13 durch Suse in der CVSS-Skalar (Version 2)}\label{tab:CVSS-Vektor}
+    \end{table}
+    \newline
+    Das ergibt den Vektor AV:N/AC:H/Au:N/C:P/I:N/A:N mit einem CVSS-Score von 2.6.
+    IBM bewertet Lucky 13 gleich außer in hinsicht auf die Access Complexity, die als medium gewertet wird, wodurch die Gesamtbewertung auf 4.3 ansteigt.
+    Die beiden Bewertungen gering, die von Suse ist im niedrigen risiko und die von IBM im mittleren Bereich, wodurch zusagen ist, dass es unwahrscheinlich ist Opfer durch den Lucky 13 Angriff zu werden.
 
 
     \section{Gegenmaßnahmen}\label{sec:gegenmanahmen}
-    Es gibt mehrer Maßnahmen die ergriffen werden können um einen Angriffserfolg zu minimieren.
+    Es gibt mehrere Maßnahmen die ergriffen werden können, um einen Angriffserfolg zu minimieren.
+    Sie müssen verhindern, dass man eine Zeitanalyse durchfahren können oder direkt die Art der Blockverschlüsslung umgehen.
 
     \subsection{Zufällige Zeitverzögerungen}
 
