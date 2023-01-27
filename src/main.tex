@@ -12,6 +12,7 @@
 \usepackage[T1]{fontenc}
 \usepackage[normalem]{ulem}
 \usepackage{wasysym}
+\usepackage{graphicx}
 \useunder{\uline}{\ul}{}
 
 
@@ -33,7 +34,8 @@
     Durch die Schwachstelle können Angreifer Daten ausspionieren, die verschlüsselt wäre und vermeintlich sicher sind.
     Die Sicherheitslücke wurde 2013 von den Wissenschaftlern Nadhem J. AlFardan and Kenneth G. Paterson, der Security Group der Royal Holloway University of London entdeckt.
     \newline
-    Der Lucky 13 Angriff ist eine Art von Man in the Middle attack verbunden mit einer padding oracle attack.
+    Der Lucky 13 Angriff ist eine Art von Man in the Middle attack verbunden mit einer padding oracle attack, weil der Angreifer zwischen den Client und Server muss, um die verschlüsselten Nachrichten zu lesen und zu senden.
+    Gleichzeitig beruht der Angriff auf einem padding oracle attack, wo verschiedene paddings an ein Server geschickt werden, um das richtig formatierte zu erfahren.
     Dabei ist das Problem, dass das Padding nach der Berechnung des message authentication code (MAC) hinzugefügt wird und somit unauthentifizierte Daten im verschlüsselten Klartext bildet.
     Im Folgendem werden verschiedene Aspekte zum verständnis der Sicherheitslücke ausgeführt.
 
@@ -43,10 +45,13 @@
     Die Gefahr bei dieser Art von Angriff ist, dass es nicht im Rahmen einer normalen Datenübertragung zu erkenne ist.
 
     \subsection{padding oracle attack}\label{subsec:padding-oracle-attack}
-    Bei einem Padding oracle attack wird ausgenutzt, dass einige Chiffren für ein Padding benötigen, um eine Blockverschlüsslung durchzuführen, damit die Nachricht auf Blocklänge ist.
-    Der Angreifer schickt dann nachrichten an den Server mit verschiedenen Paddings und schaut, ob der Server das Padding akzeptiert.
-    Bei einem korrektem Padding kann dann die Nachricht genutzt werden, um die Verschlüsslung der Datenpakete zu knacken.
-    Durch das Antworten des Servers kommt der name Orakel.
+    Bei einem Padding oracle attack wird ausgenutzt, dass einige Chiffren ein Padding benötigen, um eine Blockverschlüsslung durchzuführen, damit die Nachricht auf Blocklänge ist.
+    Der Angreifer schickt dann Nachrichten an den Server mit verschiedenen Paddings und schaut, ob der Server das Padding akzeptiert.
+    Bei einem korrektem Padding kann dann die Nachricht genutzt werden, um die Verschlüsslung der Datenpakete zu brechen.
+    Durch die präzise Antwort des Servers, dass es zu einem Entschlüsselungsfehler kam, kommt der name Orakel\cite{Rizzo2010}.
+    Um den gewöhnlichen Angriff zu verhinder \newline
+    Bei dem Beispiel Paper von Nadhem J. AlFardan and Kenneth G. Paterson haben sie lediglich die padding oracle attack in verbindung der Blockchiffre CBC verwendet.
+    Dies ist ein typisches Beispiel für einen Verschlüsselungsalgorithmus, bei dem der Angriff möglich ist.
 
 
     \section{(Datagram) Transport Layer Security}\label{sec:(d)tls}
@@ -61,15 +66,27 @@
     \newline
     DTLS basiert auf TLS, kann aber im Gegensatz zu TLS auch Transportprotokolle wie UDP übertragen, hat aber grundlegend dieselben Eigenschaften und Sicherheitsmerkmale
 
-    \subsection{CBC-Mode}\label{subsec:cbc-mode}
-    CBC steht für Cipher Block Chaining Mode, ist eine Betriebsart in der Blockchiffre, dabei wird vor dem Verschlüsseln des Klartextblocks dieser mit dem vorausgehenden verschlüsselten Block per XOR verknüpft.
+    \subsection{Cipher Block Chaining Mode Mode}\label{subsec:cbc-mode}
+    Cipher Block Chaining Mode (CBC) ist eine Betriebsart in der Blockchiffre, dabei wird vor dem Verschlüsseln des Klartextblocks dieser mit dem vorausgehenden, verschlüsselten Block per XOR verknüpft.
     Die Vorteiler dieses Modus sind, dass gleich Klartextblöcke unterschiedliche verschlüsselte Blöcke ergibt.
+    Im weiteren Verlauf wird unter dem CBC-Mode beschriebn.
+    \begin{figure}[h]
+        \begin{center}
+            \includegraphics[width=12cm]{./Literatur/documents/wo8Bl}\newline\caption{Verschlüsselung im CBC-Mode}
+            \label{CBC_Mode}
+        \end{center}
+    \end{figure}
 
 
     \section{Voraussetzungen für einen Angriff}\label{sec:voraussetzungen-fur-einen-angriff}
-    Damit der Angriff gelingt, muss die TLS version 1.1 oder eine ältere version mit Maßnahmen gegen padding oracle attacks.
-    Bei anderen älteren Versionen gelingen sonst andere Angriffe.
-    Der Angriff wurde nur getestet, bei dem der Angreifer sich im selben Netzwerk befunden hat wie der Server\cite[S. 11]{AlFardan2013}
+    Damit der Angriff gelingt, muss die TLS version 1.1 oder eine ältere Version mit Maßnahmen gegen padding oracle attacks.
+    Der Angriff ist darauf ausgelegt die Maßnahmen gegen einen normale padding oracle attack zu umgehen, indem die padding Überprüfung beim Server nicht über den Inhalt der Antwort analysiert wird, sondern über die Verarbeitungszeit.
+    Bei anderen älteren Versionen ist der Angriff deshalb nicht Empfehlenswert, weil es andere einfachere Sicherheitslücken zum Ausnutzen gibt.
+    \newline
+    Lucky 13 nutzt den Zeitkanal aus, welche nur getestet wurde im Lokalen Netzwerk des Servers.
+    Um eine genaue Zeitmessung zu ermöglichen, muss man das Rauschen des Netzwerks analysieren, damit man die Antwortdauer der Pakete unterscheiden kann.
+    Außerhalb dieses Netzwerks sind andere Variablen, die die Zeit beeinflussen und deshalb bisher nicht getestet wurden von in dem Paper der Sicherheitswissenschaftler\cite[S. 11]{AlFardan2013}.
+    Des Weiteren muss man zwischen den Client und Server gelangen, um die Pakete abzufangen und an die Sequenznummern zu kommen, da diese inkrementiert wird.
 
 
     \section{Angriffsverlauf}\label{sec:angriffsverlauf}
@@ -102,13 +119,21 @@
 
     \section{Gegenmaßnahmen}\label{sec:gegenmanahmen}
     Es gibt mehrere Maßnahmen die ergriffen werden können, um einen Angriffserfolg zu minimieren.
-    Sie müssen verhindern, dass man eine Zeitanalyse durchfahren können oder direkt die Art der Blockverschlüsslung umgehen.
+    Sie müssen verhindern, dass man eine Zeitanalyse durchfahren können oder direkt die Art der Blockverschlüsslung umgehen, indem man kein Padding benötigt.
 
-    \subsection{Zufällige Zeitverzögerungen}
+    \subsection{Zufällige Zeitverzögerungen}\label{subsec:zufallige-zeitverzogerungen}
+    Bei einem Angriff, der auf die Dauer einer Reaktion abzielt, liegt eine zufällige verzögerung nahe.
+    Allerdings ist dies ineffektiv wie N. AlFardan und K. G. Paterson schreiben~\cite[S.13]{AlFardan2013}.
 
-    \subsection{RC4-Chiffre}
+    \subsection{Rons's Code 4 Chiffre}\label{subsec:rons's-code-4-chiffre}
+    Die Ron's Code 4 Chiffre (RC4) wird zum bei der Veröffentlichung von N. AlFardan und K. G. Paterson als eine Möglichkeit zum Schutz erwähnt, weil kein Padding benötigt wird.
+    Allerdings wurde auch gesagt, dass dies keine Möglichkeit für DTLS ist~\cite[S.13]{AlFardan2013}.
+    2015 wurde von der Internet Engineering Task Force (IETF)  die Nutzung und Kommunikation über RC4 in verbindung mit TLS verboten, weil es Sicherheitsmängel aufweist.
+    % https://www.rfc-editor.org/rfc/rfc7465
 
     \subsection{Implementierung der MEE-TLS-CBC-Entschlüsselung}
+    Dies ist die von den Publishern des Angriffs empfohlene Methode.
+
     \newpage
 
     \bibliography{Literatur/Quellen}
